@@ -1,0 +1,37 @@
+{
+  "name": "grunt-jira",
+  "description": "JIRA integration for Grunt",
+  "version": "0.2.0",
+  "homepage": "https://github.com/ronaldtreur/grunt-jira",
+  "author": {
+    "name": "Ronald Treur",
+    "email": "ronald@lostparticle.net"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/ronaldtreur/grunt-jira.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ronaldtreur/grunt-jira/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/ronaldtreur/grunt-jira/blob/master/LICENSE"
+    }
+  ],
+  "engines": {
+    "node": ">= 0.10.0"
+  },
+  "peerDependencies": {
+    "grunt": "~0.4.5"
+  },
+  "keywords": [
+    "grunt",
+    "gruntplugin",
+    "jira"
+  ],
+  "dependencies": {
+    "jira": "~0.9.2"
+  }
+}
