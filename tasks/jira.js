@@ -43,7 +43,7 @@ module.exports = function (grunt) {
 					value = defaultValue;
 				}
 
-				return isFunction(value) ? value(taskManager.passValueOn) : value;
+				return isFunction(value) ? value(taskManager.passValueOn, grunt) : value;
 			}
 		};
 
