@@ -1,0 +1,5 @@
+There are two sets of properties you can use to configure Grunt-Jira. The properties that are part of the first set should always be part of your task's `options`-property. Most of these properties are mandatory (in order to connect to your Jira service) but some are not. This first set is dubbed **General options**.
+
+Note: It makes sense to add the connection-properties to your task's `options`-property, instead of reiterating them for each of your targets.
+
+The second set contains properties that can either be part of your target's `options`-property, or can be part of the array assigned to the `tasks`-property (which itself is a general option). See the description of the [tasks](#tasks) property for more details. These properties are in general related to querying Jira to get specific results. Most of these are entirely dependent on the type of task you want Jira to perform. This second set of properties is dubbed **Task options**.

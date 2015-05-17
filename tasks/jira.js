@@ -23,8 +23,8 @@ module.exports = function (grunt) {
 			The documentation below will describe -per JIRA-task- the values that you need to supply. For all these
 			values, you can opt to supply a function that returns a value, instead of a value directly.
 
-			When you use a function, and your target contains multiple tasks, the function will be passed the result
-			from the previous JIRA-task.
+			When you use a function and your tasks-property contains multiple tasks, this function will be passed the result
+			from the JIRA-task that was invoked previously (unless it's the first, obviously).
 
 			This allows you to define a chain of tasks, where each task is reliant on the information obtained by the
 			previous one.
@@ -62,26 +62,73 @@ module.exports = function (grunt) {
 		grunt.verbose.ok("Result received from Jira");
 		//grunt.verbose.writeln(JSON.stringify(result));
 		//console.log(result);
-		
+
 		/*
-			option.config (optional) - Either a String or a dicttionary object.
+    		option.process (optional) - The function assigned to this property will be invoked immediately when the
+    		Jira-request returns successfully. This means it is invoked even before the result value will be assigned to
+    		the `config`-property (if one was provided). When invoked, this function will receive the result of the
+    		Jira-request as its first parameter. Note that if the process-function returns anything 'truthy', the
+    		returned value will override Jira's result and take its place.
 
-			Say, the Jira result object contains a 'issue'-key that contains an object
-			containing issue-related data, then
+    		So, if assigning Jira's raw result-object (or part of it) into Grunt's configuration is not working
+    		for you, you can define a process-function in order to manipulate it.
+
+    		A second use-case is when writing a value to Grunt's config is not your desired outcome. Perhaps you want to
+    		write it to a file, or do other crazy things with it. You can do so in the process-function. 
+
+    		Lastly, when the completed task was part of a task-chain (i.e. it was defined as an element of the
+    		tasks-property), the function defined will also receive the (potentially processed) result-object of
+    		the previous task (as a second parameter).
+
+    		This allows you, amongst other things, to combine the results from several seperate Jira tasks together
+    		in order to then perform a task that depends on this combined information.
+    	 */
+    	if (task.process) {
+    		if (isFunction(task.process)) {
+    			result = task.process(result, taskManager.passValueOn) || result;
+    		} else {
+				grunt.log.fail('The `process`-property only accepts a function value');
+    			done(false);
+    			return;
+    		}
+    	}
+
+		/*
+			option.config (optional) - Either a String or a dictionary object.
+
+			The resulting object, returned by your Jira-command can be saved into Grunt's
+			configuration. This is helpful, because you can then use it / build on it using 
+			other Grunt tasks.
+
+			Defining the config option as a string has the following effect:
+
+			* it will set or overwrite the config of other Grunt tasks: `config: 'git.commit.issue'`, or
+			* it can be an arbitrary value, that you can then read using grunt.config: `grunt.config('git.commit.issue')`
 
 			Example:
+			```
 			config: 'git.commit.issue'
+			```
 
-			This will copy the complete result-object into the git.commit.issue-config.
+			This will copy the complete result-object into Grunt's 'git.commit.issue'-config-property.
 
+			You can also specify a dictionary object, where the keys are the config-properties you want to set. 
+			The value you specify for each of these keys, should be a string that depicts a property in Jira's
+			result-object that you want to assign to it.
+
+			This gives you more fine-grained control over what properties are assigned to what config-property, instead
+			of having to deal with the complete result-object down the line.
+	
 			Example:
+			```
 			config: {
 				'git.commit.issue': 'issue.number',
 				'prompt.issue.number': 'issue.number'
 			}
+			```
 
-			This will copy the issueNumber into both the git.commit.issue-config, 
-			as well as to the prompt.issue.number-config.
+			This particular example will copy the issueNumber into both the *git.commit.issue* config, 
+			as well as to the *prompt.issue.number*-config.
 		 */
     	if (task.config) {
     		if (isString(task.config)) {
@@ -98,27 +145,8 @@ module.exports = function (grunt) {
     		}
     	}
 
-    	/*
-    		option.process (optional) - If assigning the resulting object (or part of it) to the grunt config is
-    		not enought, you can define a process-function that will receive the resulting object as a parameter.
-    		When the Jira request succeeds, this function will be invoked.
-
-    		When part of a task-chain, the process-function (as a second parameter) will also receive the result of the
-    		previous task. What's more, the return value (if any) will manipulate the result of the task currently being
-    		performed. This means the return value is what will be passed on to the next task, instead of the actual result.
-
-    		Potentially this allows you to stack several result together in order to then perform a task that requires
-    		information retrieved by multiple tasks that were performed previously.
-
-    		Note: Using the process-options does not overrule the `config`-option. Both can be used side-by-side just fine,
-    		with the config-option being resolved first.
-    	 */
-    	if (task.process) {
-    		taskManager.passValueOn = task.process(result, taskManager.passValueOn) || result;
-    	} else {
-    		taskManager.passValueOn = result;
-    	}
-
+    	taskManager.passValueOn = result;
+    	
     	taskManager.lastResult = null;
 		done();
 	}
@@ -158,8 +186,8 @@ module.exports = function (grunt) {
 
 		var taskNr = 0;
 
-		var next = function next() {
-			if (taskNr < self.tasks.length) {
+		var next = function next(cont) {
+			if (cont !== false && taskNr < self.tasks.length) {
 				processTask(self.tasks[taskNr], options, jira, grunt, self, next);
 				taskNr++;	
 			} else {
