@@ -16,10 +16,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/chwagssd/grunt-jira.git"
+    "url": "git://github.com/ronaldtreur/grunt-jira.git"
   },
   "bugs": {
-    "url": "https://github.com/chwagssd/grunt-jira/issues",
+    "url": "https://github.com/ronaldtreur/grunt-jira/issues",
     "email": "ronald@lostparticle.net"
   },
   "engines": {
