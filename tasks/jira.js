@@ -182,7 +182,7 @@ module.exports = function (grunt) {
                 password: options.password,
                 apiVersion: 2,
                 strictSSL: true,
-                timeout: options.timeout || 2000//in seconds
+                timeout: options.timeout || 2000//in milliseconds
          });
 
 		var taskNr = 0;
