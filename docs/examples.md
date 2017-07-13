@@ -17,7 +17,8 @@ jira: {
 		host: 'jira.yourdomain.com',
 		port: '',
 		user: jiraConfig.user,
-		password: jiraConfig.password
+		password: jiraConfig.password,
+		timeout: 10000 //optional timeout parameter, in ms
 	}
 }
 ```
@@ -114,4 +115,3 @@ jira: {
 	}
 }
 ```
-				
