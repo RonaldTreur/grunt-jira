@@ -32,7 +32,7 @@
     }
   ],
   "dependencies": {
-    "jira-client": "^6.4.0"
+    "jira-client": "^1.2.0"
   },
   "devDependencies": {
     "grunt-readme-generator": "^0.3.41",
