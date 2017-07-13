@@ -6,7 +6,7 @@
  * Licensed under the MIT license.
  */
 
-var JiraApi = require('jira').JiraApi,
+var JiraApi = require('jira-client'),
 	util = require('util'),
 	commands = require('../lib/commands'),
 	requiredSettings = ['protocol', 'host', 'port', 'user', 'password'];
