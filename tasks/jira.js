@@ -6,7 +6,7 @@
  * Licensed under the MIT license.
  */
 
-var JiraApi = require('jira').JiraApi,
+var JiraApi = require('jira-client'),
 	util = require('util'),
 	commands = require('../lib/commands'),
 	requiredSettings = ['protocol', 'host', 'port', 'user', 'password'];
@@ -74,7 +74,7 @@ module.exports = function (grunt) {
     		for you, you can define a process-function in order to manipulate it.
 
     		A second use-case is when writing a value to Grunt's config is not your desired outcome. Perhaps you want to
-    		write it to a file, or do other crazy things with it. You can do so in the process-function. 
+    		write it to a file, or do other crazy things with it. You can do so in the process-function.
 
     		Lastly, when the completed task was part of a task-chain (i.e. it was defined as an element of the
     		tasks-property), the function defined will also receive the (potentially processed) result-object of
@@ -97,7 +97,7 @@ module.exports = function (grunt) {
 			option.config (optional) - Either a String or a dictionary object.
 
 			The resulting object, returned by your Jira-command can be saved into Grunt's
-			configuration. This is helpful, because you can then use it / build on it using 
+			configuration. This is helpful, because you can then use it / build on it using
 			other Grunt tasks.
 
 			Defining the config option as a string has the following effect:
@@ -112,13 +112,13 @@ module.exports = function (grunt) {
 
 			This will copy the complete result-object into Grunt's 'git.commit.issue'-config-property.
 
-			You can also specify a dictionary object, where the keys are the config-properties you want to set. 
+			You can also specify a dictionary object, where the keys are the config-properties you want to set.
 			The value you specify for each of these keys, should be a string that depicts a property in Jira's
 			result-object that you want to assign to it.
 
 			This gives you more fine-grained control over what properties are assigned to what config-property, instead
 			of having to deal with the complete result-object down the line.
-	
+
 			Example:
 			```
 			config: {
@@ -127,7 +127,7 @@ module.exports = function (grunt) {
 			}
 			```
 
-			This particular example will copy the issueNumber into both the *git.commit.issue* config, 
+			This particular example will copy the issueNumber into both the *git.commit.issue* config,
 			as well as to the *prompt.issue.number*-config.
 		 */
     	if (task.config) {
@@ -146,7 +146,7 @@ module.exports = function (grunt) {
     	}
 
     	taskManager.passValueOn = result;
-    	
+
     	taskManager.lastResult = null;
 		done();
 	}
@@ -174,22 +174,23 @@ module.exports = function (grunt) {
 			return;
 		}
 
-		jira = new JiraApi(
-			options.protocol,
-			options.host,
-			options.port,
-			options.user,
-			options.password,
-			'2',
-			true
-		);
+        jira = new JiraApi({
+                protocol: options.protocol,
+                host: options.host,
+                port: options.port,
+                username: options.user,
+                password: options.password,
+                apiVersion: 2,
+                strictSSL: true,
+                timeout: options.timeout || 2000//in milliseconds
+         });
 
 		var taskNr = 0;
 
 		var next = function next(cont) {
 			if (cont !== false && taskNr < self.tasks.length) {
 				processTask(self.tasks[taskNr], options, jira, grunt, self, next);
-				taskNr++;	
+				taskNr++;
 			} else {
 				done();
 			}
